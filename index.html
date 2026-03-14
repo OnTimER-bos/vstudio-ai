@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>V-STUDIO WORKING</title>
+<title>V-STUDIO AI</title>
 
 <style>
 
@@ -90,6 +91,11 @@ width:100%;
 border-radius:10px;
 }
 
+.status{
+margin-top:10px;
+color:#aaa;
+}
+
 </style>
 
 </head>
@@ -113,7 +119,7 @@ AI Creative Studio
 <div class="workspace" id="workspace">
 
 <h2>Welcome</h2>
-<p>System Ready</p>
+<p>AI tools ready</p>
 
 </div>
 
@@ -121,34 +127,30 @@ AI Creative Studio
 
 <script>
 
-function openTab(tab){
+/* PROMPT ENHANCER */
 
-if(tab==="dashboard"){
+function enhancePrompt(p){
 
-workspace.innerHTML=`
-<h2>Dashboard</h2>
-<p>Tools ready</p>
-`
+let styles=[
+"ultra realistic photo",
+"cinematic lighting",
+"professional photography",
+"high detail",
+"8k resolution",
+"sharp focus",
+"beautiful composition",
+"dramatic lighting"
+]
 
-}
+let randomStyle=styles[Math.floor(Math.random()*styles.length)]
 
-if(tab==="image"){
-
-workspace.innerHTML=`
-
-<h2>Image Generator</h2>
-
-<textarea id="prompt" placeholder="describe image"></textarea>
-
-<button class="generate" onclick="generate()">Generate</button>
-
-<div class="grid" id="images"></div>
-
-`
+return p + ", " + randomStyle
 
 }
 
-  const models = [
+/* AI MODEL LIST */
+
+const models=[
 
 (prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`,
 
@@ -158,47 +160,57 @@ workspace.innerHTML=`
 
 (prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=turbo`,
 
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=midjourney`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${Math.random()}`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=anime`,
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=cinematic`,
 
 (prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=photo`,
 
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=cinematic`,
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=anime`,
 
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=3d`
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=3d`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${Math.random()}`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?enhance=true`
+
 ]
 
-function generate(){
+/* NAVIGATION */
 
-let prompt=document.getElementById("prompt").value
-let images=document.getElementById("images")
+function openTab(tab){
 
-images.innerHTML="Generating..."
+if(tab==="dashboard"){
 
-for(let i=0;i<4;i++){
+workspace.innerHTML=`
 
-let model=models[Math.floor(Math.random()*models.length)]
+<h2>Dashboard</h2>
 
-let url=model(prompt)
+<p>AI System Ready</p>
 
-let img=new Image()
+<ul>
+<li>Image Generator</li>
+<li>Caption Generator</li>
+<li>Prompt Enhancer</li>
+</ul>
 
-img.onload=()=>{
-images.appendChild(img)
-}
-
-img.onerror=()=>{
-console.log("model failed, retry")
-generate()
-}
-
-img.src=url
-img.style.width="100%"
+`
 
 }
+
+if(tab==="image"){
+
+workspace.innerHTML=`
+
+<h2>AI Image Generator</h2>
+
+<textarea id="prompt" placeholder="describe image"></textarea>
+
+<button class="generate" onclick="generateImage()">Generate</button>
+
+<div class="status" id="status"></div>
+
+<div class="grid" id="images"></div>
+
+`
 
 }
 
@@ -210,7 +222,7 @@ workspace.innerHTML=`
 
 <textarea id="prompt"></textarea>
 
-<button class="generate" onclick="caption()">Generate</button>
+<button class="generate" onclick="generateCaption()">Generate</button>
 
 <div id="result"></div>
 
@@ -220,34 +232,63 @@ workspace.innerHTML=`
 
 }
 
-function generate(){
+/* IMAGE GENERATOR */
+
+function generateImage(){
 
 let prompt=document.getElementById("prompt").value
-
 let images=document.getElementById("images")
+let status=document.getElementById("status")
 
 images.innerHTML=""
+status.innerText="Generating images..."
+
+let smartPrompt=enhancePrompt(prompt)
+
+let done=0
 
 for(let i=0;i<4;i++){
 
-let url="https://picsum.photos/seed/"+encodeURIComponent(prompt+i)+"/600/600"
+let model=models[Math.floor(Math.random()*models.length)]
 
-let div=document.createElement("div")
+let url=model(smartPrompt)
 
-div.innerHTML=`<img src="${url}">`
+let img=new Image()
 
-images.appendChild(div)
+img.onload=function(){
+
+done++
+
+images.appendChild(img)
+
+status.innerText=done+" / 4 images ready"
+
+}
+
+img.onerror=function(){
+
+status.innerText="retrying..."
+
+setTimeout(()=>{
+img.src=url+"&retry="+Math.random()
+},2000)
+
+}
+
+img.src=url
 
 }
 
 }
 
-function caption(){
+/* CAPTION GENERATOR */
+
+function generateCaption(){
 
 let p=document.getElementById("prompt").value
 
 result.innerText=
-"☕ "+p+" — perfect coffee moment."
+"☕ "+p+" — the perfect coffee moment."
 
 }
 
