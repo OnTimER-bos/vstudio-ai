@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>V-STUDIO AI</title>
+<title>V-STUDIO AI PRO</title>
 
 <style>
 
@@ -103,16 +103,32 @@ width:0%;
 background:#6366f1;
 }
 
-img{
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
 margin-top:20px;
-max-width:100%;
+}
+
+img{
+width:100%;
 border-radius:10px;
 }
 
-.queue{
-margin-top:10px;
-font-size:14px;
-color:#aaa;
+.download{
+margin-top:5px;
+background:#111;
+border:none;
+color:white;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.history img{
+width:120px;
+margin:5px;
+border-radius:6px;
 }
 
 </style>
@@ -125,7 +141,7 @@ color:#aaa;
 
 <h2>V-STUDIO</h2>
 
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button>
+<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button> <button onclick="openTab('video')">Video Prompt</button> <button onclick="openTab('caption')">Caption AI</button> <button onclick="openTab('history')">History</button>
 
 </div>
 
@@ -138,7 +154,7 @@ AI Creative Studio
 <div class="workspace" id="workspace">
 
 <h2>Welcome</h2>
-<p>AI tools ready 🚀</p>
+<p>V-STUDIO AI Ready 🚀</p>
 
 </div>
 
@@ -146,23 +162,23 @@ AI Creative Studio
 
 <script>
 
-let queue=[]
-let generating=false
+let historyImages=[]
 
 function openTab(tab){
 
 if(tab==="dashboard"){
 
-document.getElementById("workspace").innerHTML=`
+workspace.innerHTML=`
 
 <h2>Dashboard</h2>
 
-<p>AI Studio Ready</p>
+<p>Tools Available</p>
 
 <ul>
 <li>AI Image Generator</li>
-<li>Queue System</li>
-<li>Progress Loading</li>
+<li>Video Prompt Generator</li>
+<li>Caption Generator</li>
+<li>History</li>
 </ul>
 
 `
@@ -171,25 +187,21 @@ document.getElementById("workspace").innerHTML=`
 
 if(tab==="image"){
 
-document.getElementById("workspace").innerHTML=`
+workspace.innerHTML=`
 
 <h2>AI Image Generator</h2>
 
 <textarea id="prompt" placeholder="Describe image..."></textarea>
 
-<button class="generate" onclick="addQueue()">Generate Image</button>
-
-<div class="queue" id="queue"></div>
+<button class="generate" onclick="generate()">Generate 4 Images</button>
 
 <div class="card">
-
-<div id="status"></div>
 
 <div class="progress">
 <div class="bar" id="bar"></div>
 </div>
 
-<img id="image">
+<div class="grid" id="images"></div>
 
 </div>
 
@@ -197,99 +209,129 @@ document.getElementById("workspace").innerHTML=`
 
 }
 
+if(tab==="video"){
+
+workspace.innerHTML=`
+
+<h2>Video Prompt Generator</h2>
+
+<textarea id="prompt"></textarea>
+
+<button class="generate" onclick="video()">Generate</button>
+
+<div class="card" id="result"></div>
+
+`
+
 }
 
-function addQueue(){
+if(tab==="caption"){
+
+workspace.innerHTML=`
+
+<h2>Instagram Caption Generator</h2>
+
+<textarea id="prompt"></textarea>
+
+<button class="generate" onclick="caption()">Generate</button>
+
+<div class="card" id="result"></div>
+
+`
+
+}
+
+if(tab==="history"){
+
+let html="<h2>History</h2><div class='history'>"
+
+historyImages.forEach(img=>{
+html+=`<img src="${img}">`
+})
+
+html+="</div>"
+
+workspace.innerHTML=html
+
+}
+
+}
+
+function generate(){
 
 let prompt=document.getElementById("prompt").value
 
-queue.push(prompt)
-
-updateQueue()
-
-processQueue()
-
-}
-
-function updateQueue(){
-
-document.getElementById("queue").innerText=
-"Queue: "+queue.length+" image task"
-
-}
-
-function processQueue(){
-
-if(generating) return
-
-if(queue.length===0) return
-
-generating=true
-
-let prompt=queue.shift()
-
-updateQueue()
-
-generateImage(prompt)
-
-}
-
-function generateImage(prompt){
-
-let img=document.getElementById("image")
-
-let status=document.getElementById("status")
-
 let bar=document.getElementById("bar")
 
-status.innerText="Generating image..."
+let images=document.getElementById("images")
+
+images.innerHTML=""
 
 let progress=0
 
-let interval=setInterval(()=>{
+let loader=setInterval(()=>{
 
 progress+=5
-
 bar.style.width=progress+"%"
 
 if(progress>=90){
-clearInterval(interval)
+clearInterval(loader)
 }
 
 },200)
 
-let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(prompt)+"?seed="+Math.random()
+for(let i=0;i<4;i++){
 
-img.onload=function(){
+let url="https://image.pollinations.ai/prompt/"
++encodeURIComponent(prompt)
++"?seed="+Math.random()
 
-clearInterval(interval)
+let div=document.createElement("div")
 
-bar.style.width="100%"
+div.innerHTML=`
 
-status.innerText="Image ready"
+<img src="${url}">
 
-generating=false
+<button class="download" onclick="download('${url}')">Download</button>
 
-setTimeout(()=>{
-bar.style.width="0%"
-processQueue()
-},1000)
+`
+
+images.appendChild(div)
+
+historyImages.push(url)
 
 }
 
-img.onerror=function(){
-
-status.innerText="Error loading image... retrying"
-
 setTimeout(()=>{
-
-generateImage(prompt)
-
+bar.style.width="100%"
 },2000)
 
 }
 
-img.src=url
+function download(url){
+
+let a=document.createElement("a")
+a.href=url
+a.download="ai-image.png"
+a.click()
+
+}
+
+function video(){
+
+let p=document.getElementById("prompt").value
+
+result.innerText=
+"Cinematic video scene of "+p+", dramatic lighting, 4k film look"
+
+}
+
+function caption(){
+
+let p=document.getElementById("prompt").value
+
+result.innerText=
+"☕ Experience the vibe!\n\n"+p+" — the perfect moment for coffee lovers."
 
 }
 
