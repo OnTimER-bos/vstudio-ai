@@ -1,299 +1,124 @@
 <!DOCTYPE html>
-
-<html>
-
+<html lang="id">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>V-STUDIO AI</title>
-
-<style>
-
-body{
-margin:0;
-font-family:Arial;
-background:#020205;
-color:white;
-display:flex;
-height:100vh;
-}
-
-.sidebar{
-width:220px;
-background:#05050a;
-padding:20px;
-border-right:1px solid #222;
-}
-
-.sidebar h2{
-color:#6366f1;
-}
-
-.sidebar button{
-width:100%;
-margin-top:10px;
-background:#111;
-color:white;
-border:none;
-padding:10px;
-border-radius:6px;
-cursor:pointer;
-}
-
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-.header{
-padding:20px;
-border-bottom:1px solid #222;
-}
-
-.workspace{
-flex:1;
-padding:30px;
-overflow:auto;
-}
-
-textarea{
-width:100%;
-height:120px;
-background:#0b0b12;
-color:white;
-border:1px solid #333;
-border-radius:8px;
-padding:10px;
-}
-
-.generate{
-margin-top:10px;
-background:#6366f1;
-border:none;
-padding:10px 20px;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-margin-top:20px;
-}
-
-img{
-width:100%;
-border-radius:10px;
-}
-
-.status{
-margin-top:10px;
-color:#aaa;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V-STUDIO AI</title>
+    <style>
+        body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:#020205; color:white; display:flex; height:100vh; }
+        .sidebar { width:220px; background:#05050a; padding:20px; border-right:1px solid #222; }
+        .sidebar h2 { color:#6366f1; }
+        .sidebar button { width:100%; margin-top:10px; background:#111; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; transition: 0.3s; }
+        .sidebar button:hover { background: #6366f1; }
+        .main { flex:1; display:flex; flex-direction:column; }
+        .header { padding:20px; border-bottom:1px solid #222; font-weight: bold; }
+        .workspace { flex:1; padding:30px; overflow-y:auto; }
+        textarea { width:100%; height:120px; background:#0b0b12; color:white; border:1px solid #333; border-radius:8px; padding:10px; box-sizing: border-box; }
+        .generate { margin-top:10px; background:#6366f1; border:none; padding:10px 20px; color:white; border-radius:6px; cursor:pointer; }
+        .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:15px; margin-top:20px; }
+        img { width:100%; border-radius:10px; border: 1px solid #333; }
+        .status { margin-top:10px; color:#aaa; font-size: 0.9em; }
+    </style>
 </head>
-
 <body>
 
 <div class="sidebar">
-
-<h2>V-STUDIO</h2>
-
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">Image Generator</button> <button onclick="openTab('caption')">Caption AI</button>
-
+    <h2>V-STUDIO</h2>
+    <button onclick="openTab('dashboard')">Dashboard</button>
+    <button onclick="openTab('image')">Image Generator</button>
+    <button onclick="openTab('caption')">Caption AI</button>
 </div>
 
 <div class="main">
-
-<div class="header">
-AI Creative Studio
-</div>
-
-<div class="workspace" id="workspace">
-
-<h2>Welcome</h2>
-<p>AI tools ready</p>
-
-</div>
-
+    <div class="header">AI Creative Studio</div>
+    <div class="workspace" id="workspace">
+        <h2>Welcome</h2>
+        <p>Pilih alat di samping untuk memulai.</p>
+    </div>
 </div>
 
 <script>
 
-/* PROMPT ENHANCER */
-
-function enhancePrompt(p){
-
-let styles=[
-"ultra realistic photo",
-"cinematic lighting",
-"professional photography",
-"high detail",
-"8k resolution",
-"sharp focus",
-"beautiful composition",
-"dramatic lighting"
-]
-
-let randomStyle=styles[Math.floor(Math.random()*styles.length)]
-
-return p + ", " + randomStyle
-
-}
-
-/* AI MODEL LIST */
-
-const models=[
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=sdxl`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=turbo`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=cinematic`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=photo`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=anime`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=3d`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${Math.random()}`,
-
-(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?enhance=true`
-
-]
-
-/* NAVIGATION */
-
-function openTab(tab){
-
-if(tab==="dashboard"){
-
-workspace.innerHTML=`
-
-<h2>Dashboard</h2>
-
-<p>AI System Ready</p>
-
-<ul>
-<li>Image Generator</li>
-<li>Caption Generator</li>
-<li>Prompt Enhancer</li>
-</ul>
-
-`
-
-}
-
-if(tab==="image"){
-
-workspace.innerHTML=`
-
-<h2>AI Image Generator</h2>
-
-<textarea id="prompt" placeholder="describe image"></textarea>
-
-<button class="generate" onclick="generateImage()">Generate</button>
-
-<div class="status" id="status"></div>
-
-<div class="grid" id="images"></div>
-
-`
-
-}
-
-if(tab==="caption"){
-
-workspace.innerHTML=`
-
-<h2>Caption Generator</h2>
-
-<textarea id="prompt"></textarea>
-
-<button class="generate" onclick="generateCaption()">Generate</button>
-
-<div id="result"></div>
-
-`
-
-}
-
-}
-
-/* IMAGE GENERATOR */
-
-function generateImage(){
-
-let prompt=document.getElementById("prompt").value
-let images=document.getElementById("images")
-let status=document.getElementById("status")
-
-images.innerHTML=""
-status.innerText="Generating images..."
-
-let smartPrompt=enhancePrompt(prompt)
-
-let done=0
-
-for(let i=0;i<4;i++){
-
-let model=models[Math.floor(Math.random()*models.length)]
-
-let url=model(smartPrompt)
-
-let img=new Image()
-
-img.onload=function(){
-
-done++
-
-images.appendChild(img)
-
-status.innerText=done+" / 4 images ready"
-
-}
-
-img.onerror=function(){
-
-status.innerText="retrying..."
-
-setTimeout(()=>{
-img.src=url+"&retry="+Math.random()
-},2000)
-
-}
-
-img.src=url
-
-}
-
-}
-
-/* CAPTION GENERATOR */
-
-function generateCaption(){
-
-let p=document.getElementById("prompt").value
-
-result.innerText=
-"☕ "+p+" — the perfect coffee moment."
-
-}
-
+  // --- API KEYS (Placeholder akan diganti oleh GitHub Actions) ---
+    const GEMINI_API_KEY = "__HF_TOKEN_1__";
+    const OPENAI_API_KEY = "__HF_TOKEN_2__";
+    // --------------------------------------------------------------
+
+    const workspace = document.getElementById("workspace");
+    
+    // ... (fungsi lainnya tetap sama)
+
+    // CONTOH CARA MENGGUNAKANNYA NANTI:
+    async function callGemini(prompt) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    }
+
+    // ... sisa kode kamu
+    const workspace = document.getElementById("workspace");
+
+    function enhancePrompt(p) {
+        const styles = ["ultra realistic", "cinematic lighting", "8k, high detail", "sharp focus"];
+        const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+        return `${p}, ${randomStyle}`;
+    }
+
+    function openTab(tab) {
+        if(tab === "dashboard") {
+            workspace.innerHTML = `<h2>Dashboard</h2><p>Sistem siap digunakan.</p>`;
+        } else if(tab === "image") {
+            workspace.innerHTML = `<h2>AI Image Generator</h2>
+                <textarea id="prompt" placeholder="Deskripsikan gambar..."></textarea>
+                <button class="generate" onclick="generateImage()">Generate</button>
+                <div class="status" id="status"></div>
+                <div class="grid" id="images"></div>`;
+        } else if(tab === "caption") {
+            workspace.innerHTML = `<h2>Caption Generator</h2>
+                <textarea id="prompt" placeholder="Masukkan topik..."></textarea>
+                <button class="generate" onclick="generateCaption()">Generate</button>
+                <div id="result" style="margin-top:20px; font-style:italic;"></div>`;
+        }
+    }
+
+    function generateImage() {
+        const prompt = document.getElementById("prompt").value;
+        const imagesDiv = document.getElementById("images");
+        const status = document.getElementById("status");
+
+        if(!prompt) return alert("Masukkan prompt dulu!");
+
+        imagesDiv.innerHTML = "";
+        status.innerText = "Generating images... (tunggu sebentar)";
+
+        const smartPrompt = enhancePrompt(prompt);
+        let done = 0;
+
+        for(let i = 0; i < 4; i++) {
+            // Menggunakan Pollinations API
+            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(smartPrompt)}?seed=${Math.floor(Math.random()*100000)}`;
+            
+            const img = new Image();
+            img.onload = () => {
+                done++;
+                imagesDiv.appendChild(img);
+                status.innerText = `${done} / 4 gambar siap.`;
+            };
+            img.src = url;
+        }
+    }
+
+    function generateCaption() {
+        const p = document.getElementById("prompt").value;
+        document.getElementById("result").innerText = p ? `☕ "${p}" — the perfect moment.` : "Masukkan teks terlebih dahulu.";
+    }
 </script>
-
 </body>
-
 </html>
