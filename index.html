@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>V-STUDIO AI PRO</title>
+<title>V-STUDIO AI</title>
 
 <style>
 
@@ -39,10 +39,6 @@ border:none;
 padding:10px;
 border-radius:6px;
 cursor:pointer;
-}
-
-.sidebar button:hover{
-background:#6366f1;
 }
 
 .main{
@@ -82,27 +78,6 @@ border-radius:6px;
 cursor:pointer;
 }
 
-.card{
-margin-top:20px;
-background:#0b0b12;
-padding:20px;
-border-radius:10px;
-}
-
-.progress{
-height:8px;
-background:#222;
-border-radius:6px;
-overflow:hidden;
-margin-top:10px;
-}
-
-.bar{
-height:100%;
-width:0%;
-background:#6366f1;
-}
-
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -115,20 +90,9 @@ width:100%;
 border-radius:10px;
 }
 
-.download{
-margin-top:5px;
-background:#111;
-border:none;
-color:white;
-padding:6px 10px;
-border-radius:6px;
-cursor:pointer;
-}
-
-.history img{
-width:120px;
-margin:5px;
-border-radius:6px;
+.status{
+margin-top:10px;
+color:#aaa;
 }
 
 </style>
@@ -141,7 +105,7 @@ border-radius:6px;
 
 <h2>V-STUDIO</h2>
 
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button> <button onclick="openTab('video')">Video Prompt</button> <button onclick="openTab('caption')">Caption AI</button> <button onclick="openTab('history')">History</button>
+<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button> <button onclick="openTab('caption')">Caption AI</button>
 
 </div>
 
@@ -154,7 +118,7 @@ AI Creative Studio
 <div class="workspace" id="workspace">
 
 <h2>Welcome</h2>
-<p>V-STUDIO AI Ready 🚀</p>
+<p>System Ready</p>
 
 </div>
 
@@ -162,7 +126,20 @@ AI Creative Studio
 
 <script>
 
-let historyImages=[]
+const styles=[
+
+"cinematic lighting",
+"ultra realistic photo",
+"anime style",
+"3d render",
+"studio photography",
+"fantasy art",
+"digital painting",
+"concept art",
+"isometric 3d",
+"cyberpunk style"
+
+]
 
 function openTab(tab){
 
@@ -172,13 +149,12 @@ workspace.innerHTML=`
 
 <h2>Dashboard</h2>
 
-<p>Tools Available</p>
+<p>Tools Ready</p>
 
 <ul>
 <li>AI Image Generator</li>
-<li>Video Prompt Generator</li>
 <li>Caption Generator</li>
-<li>History</li>
+<li>10 Random AI Styles</li>
 </ul>
 
 `
@@ -191,35 +167,13 @@ workspace.innerHTML=`
 
 <h2>AI Image Generator</h2>
 
-<textarea id="prompt" placeholder="Describe image..."></textarea>
+<textarea id="prompt" placeholder="describe image"></textarea>
 
-<button class="generate" onclick="generate()">Generate 4 Images</button>
+<button class="generate" onclick="generate()">Generate</button>
 
-<div class="card">
-
-<div class="progress">
-<div class="bar" id="bar"></div>
-</div>
+<div class="status" id="status"></div>
 
 <div class="grid" id="images"></div>
-
-</div>
-
-`
-
-}
-
-if(tab==="video"){
-
-workspace.innerHTML=`
-
-<h2>Video Prompt Generator</h2>
-
-<textarea id="prompt"></textarea>
-
-<button class="generate" onclick="video()">Generate</button>
-
-<div class="card" id="result"></div>
 
 `
 
@@ -229,29 +183,15 @@ if(tab==="caption"){
 
 workspace.innerHTML=`
 
-<h2>Instagram Caption Generator</h2>
+<h2>Caption Generator</h2>
 
 <textarea id="prompt"></textarea>
 
 <button class="generate" onclick="caption()">Generate</button>
 
-<div class="card" id="result"></div>
+<div id="result"></div>
 
 `
-
-}
-
-if(tab==="history"){
-
-let html="<h2>History</h2><div class='history'>"
-
-historyImages.forEach(img=>{
-html+=`<img src="${img}">`
-})
-
-html+="</div>"
-
-workspace.innerHTML=html
 
 }
 
@@ -260,69 +200,47 @@ workspace.innerHTML=html
 function generate(){
 
 let prompt=document.getElementById("prompt").value
-
-let bar=document.getElementById("bar")
-
 let images=document.getElementById("images")
+let status=document.getElementById("status")
 
 images.innerHTML=""
+status.innerText="Generating images..."
 
-let progress=0
-
-let loader=setInterval(()=>{
-
-progress+=5
-bar.style.width=progress+"%"
-
-if(progress>=90){
-clearInterval(loader)
-}
-
-},200)
+let done=0
 
 for(let i=0;i<4;i++){
 
-let url="https://image.pollinations.ai/prompt/"
-+encodeURIComponent(prompt)
-+"?seed="+Math.random()
+let style=styles[Math.floor(Math.random()*styles.length)]
 
-let div=document.createElement("div")
+let fullPrompt=prompt+" "+style
 
-div.innerHTML=`
+let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(fullPrompt)+"?seed="+Math.random()
 
-<img src="${url}">
+let img=new Image()
 
-<button class="download" onclick="download('${url}')">Download</button>
+img.onload=function(){
 
-`
+done++
 
-images.appendChild(div)
+images.appendChild(img)
 
-historyImages.push(url)
+status.innerText=done+" / 4 images ready"
 
 }
 
+img.onerror=function(){
+
+status.innerText="retrying..."
+
 setTimeout(()=>{
-bar.style.width="100%"
+img.src=url+"&retry="+Math.random()
 },2000)
 
 }
 
-function download(url){
-
-let a=document.createElement("a")
-a.href=url
-a.download="ai-image.png"
-a.click()
+img.src=url
 
 }
-
-function video(){
-
-let p=document.getElementById("prompt").value
-
-result.innerText=
-"Cinematic video scene of "+p+", dramatic lighting, 4k film look"
 
 }
 
@@ -331,11 +249,12 @@ function caption(){
 let p=document.getElementById("prompt").value
 
 result.innerText=
-"☕ Experience the vibe!\n\n"+p+" — the perfect moment for coffee lovers."
+"☕ "+p+" — the perfect moment for coffee lovers."
 
 }
 
 </script>
 
 </body>
+
 </html>
