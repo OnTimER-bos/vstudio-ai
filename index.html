@@ -68,7 +68,7 @@ border-radius:8px;
 padding:10px;
 }
 
-.generate{
+button.generate{
 margin-top:10px;
 background:#6366f1;
 border:none;
@@ -78,15 +78,10 @@ border-radius:6px;
 cursor:pointer;
 }
 
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-margin-top:20px;
-}
-
 img{
+margin-top:20px;
 width:100%;
+max-width:600px;
 border-radius:10px;
 }
 
@@ -105,7 +100,7 @@ color:#aaa;
 
 <h2>V-STUDIO</h2>
 
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button> <button onclick="openTab('caption')">Caption AI</button>
+<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button>
 
 </div>
 
@@ -126,37 +121,15 @@ AI Creative Studio
 
 <script>
 
-const styles=[
-
-"cinematic lighting",
-"ultra realistic photo",
-"anime style",
-"3d render",
-"studio photography",
-"fantasy art",
-"digital painting",
-"concept art",
-"isometric 3d",
-"cyberpunk style"
-
-]
+let API_KEY="PASTE_API_KEY_DISINI"
 
 function openTab(tab){
 
 if(tab==="dashboard"){
 
 workspace.innerHTML=`
-
 <h2>Dashboard</h2>
-
-<p>Tools Ready</p>
-
-<ul>
-<li>AI Image Generator</li>
-<li>Caption Generator</li>
-<li>10 Random AI Styles</li>
-</ul>
-
+<p>AI Generator Ready</p>
 `
 
 }
@@ -169,27 +142,11 @@ workspace.innerHTML=`
 
 <textarea id="prompt" placeholder="describe image"></textarea>
 
-<button class="generate" onclick="generate()">Generate</button>
+<button class="generate" onclick="generate()">Generate Image</button>
 
 <div class="status" id="status"></div>
 
-<div class="grid" id="images"></div>
-
-`
-
-}
-
-if(tab==="caption"){
-
-workspace.innerHTML=`
-
-<h2>Caption Generator</h2>
-
-<textarea id="prompt"></textarea>
-
-<button class="generate" onclick="caption()">Generate</button>
-
-<div id="result"></div>
+<img id="image">
 
 `
 
@@ -197,60 +154,38 @@ workspace.innerHTML=`
 
 }
 
-function generate(){
+async function generate(){
 
-let prompt=document.getElementById("prompt").value
-let images=document.getElementById("images")
+let API_KEY = prompt("Masukkan HuggingFace API Key")
+
+let promptText=document.getElementById("prompt").value
 let status=document.getElementById("status")
+let image=document.getElementById("image")
 
-images.innerHTML=""
-status.innerText="Generating images..."
+status.innerText="Generating image..."
 
-let done=0
+let response=await fetch(
+"https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2",
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+API_KEY,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+inputs:promptText
+})
+})
 
-for(let i=0;i<4;i++){
+let blob=await response.blob()
 
-let style=styles[Math.floor(Math.random()*styles.length)]
+let url=URL.createObjectURL(blob)
 
-let fullPrompt=prompt+" "+style
+image.src=url
 
-let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(fullPrompt)+"?seed="+Math.random()
-
-let img=new Image()
-
-img.onload=function(){
-
-done++
-
-images.appendChild(img)
-
-status.innerText=done+" / 4 images ready"
-
-}
-
-img.onerror=function(){
-
-status.innerText="retrying..."
-
-setTimeout(()=>{
-img.src=url+"&retry="+Math.random()
-},2000)
+status.innerText="Image ready"
 
 }
-
-img.src=url
-
-}
-
-}
-
-function caption(){
-
-let p=document.getElementById("prompt").value
-
-result.innerText=
-"☕ "+p+" — the perfect moment for coffee lovers."
-
 }
 
 </script>
