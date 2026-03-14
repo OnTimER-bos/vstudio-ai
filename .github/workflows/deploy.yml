@@ -1,4 +1,4 @@
 - name: Inject API Keys
         run: |
-          sed -i "s/__GEMINI_KEY_PLACEHOLDER__/${{ secrets.HF_TOKEN_1 }}/g" script.js
-          sed -i "s/__OPENAI_KEY_PLACEHOLDER__/${{ secrets.HF_TOKEN_2 }}/g" script.js
+          sed -i "s/HF_TOKEN_1/${{ secrets.HF_TOKEN_1 }}/g" index.html
+          sed -i "s/HF_TOKEN_2/${{ secrets.HF_TOKEN_2 }}/g" index.html
