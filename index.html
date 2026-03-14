@@ -1,41 +1,98 @@
 <!DOCTYPE html>
 
 <html>
-
 <head>
+
 <meta charset="UTF-8">
-<title>V-STUDIO AI IMAGE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>V-STUDIO AI</title>
 
 <style>
 
 body{
+margin:0;
+font-family:Arial;
 background:#020205;
 color:white;
-font-family:Arial;
-text-align:center;
-padding:40px;
+display:flex;
+height:100vh;
 }
 
-input{
-width:60%;
+.sidebar{
+width:220px;
+background:#05050a;
+padding:20px;
+border-right:1px solid #222;
+}
+
+.sidebar h2{
+color:#6366f1;
+margin-bottom:20px;
+}
+
+.sidebar button{
+width:100%;
+margin-bottom:10px;
+background:#111;
+color:white;
+border:none;
 padding:10px;
 border-radius:6px;
-border:none;
+cursor:pointer;
 }
 
-button{
-padding:10px 20px;
-background:#4f46e5;
+.sidebar button:hover{
+background:#6366f1;
+}
+
+.main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+.header{
+padding:20px;
+border-bottom:1px solid #222;
+}
+
+.workspace{
+flex:1;
+padding:25px;
+overflow:auto;
+}
+
+textarea{
+width:100%;
+height:120px;
+background:#0b0b12;
+color:white;
+border:1px solid #333;
+border-radius:8px;
+padding:10px;
+}
+
+.generate{
+margin-top:10px;
+background:#6366f1;
 border:none;
+padding:10px 20px;
 color:white;
 border-radius:6px;
 cursor:pointer;
-margin-left:10px;
+}
+
+.result{
+margin-top:20px;
+background:#0b0b12;
+padding:20px;
+border-radius:10px;
 }
 
 img{
-margin-top:30px;
-max-width:500px;
+margin-top:20px;
+max-width:100%;
 border-radius:10px;
 }
 
@@ -45,30 +102,146 @@ border-radius:10px;
 
 <body>
 
-<h1>V-STUDIO AI Image Generator</h1>
+<div class="sidebar">
 
-<input id="prompt" placeholder="Describe image">
+<h2>V-STUDIO</h2>
 
-<button onclick="generate()">Generate</button>
+<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button> <button onclick="openTab('video')">Video Prompt</button> <button onclick="openTab('text')">Text Generator</button>
 
-<br>
+</div>
 
-<img id="image">
+<div class="main">
+
+<div class="header">
+AI Creative Studio
+</div>
+
+<div class="workspace" id="workspace">
+
+<h2>Welcome to V-STUDIO</h2>
+<p>AI tools ready 🚀</p>
+
+</div>
+
+</div>
 
 <script>
 
-function generate(){
+function openTab(tab){
+
+let html=""
+
+if(tab==="dashboard"){
+
+html=`
+<h2>Dashboard</h2>
+
+<p>AI Tools Available</p>
+
+<ul>
+<li>AI Image Generator</li>
+<li>Video Prompt Generator</li>
+<li>Text Generator</li>
+</ul>
+`
+
+}
+
+if(tab==="image"){
+
+html=`
+
+<h2>AI Image Generator</h2>
+
+<textarea id="prompt" placeholder="Describe image..."></textarea>
+
+<button class="generate" onclick="generateImage()">Generate Image</button>
+
+<div class="result">
+
+<p id="status"></p>
+
+<img id="image">
+
+</div>
+
+`
+
+}
+
+if(tab==="video"){
+
+html=`
+
+<h2>Video Prompt Generator</h2>
+
+<textarea id="prompt" placeholder="Describe video scene..."></textarea>
+
+<button class="generate" onclick="generateVideo()">Generate Prompt</button>
+
+<div class="result" id="result"></div>
+
+`
+
+}
+
+if(tab==="text"){
+
+html=`
+
+<h2>Text Generator</h2>
+
+<textarea id="prompt" placeholder="Write topic..."></textarea>
+
+<button class="generate" onclick="generateText()">Generate</button>
+
+<div class="result" id="result"></div>
+
+`
+
+}
+
+document.getElementById("workspace").innerHTML=html
+
+}
+
+function generateImage(){
 
 let prompt=document.getElementById("prompt").value
 
 let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(prompt)
 
-document.getElementById("image").src=url
+document.getElementById("status").innerText="Generating image..."
+
+let img=document.getElementById("image")
+
+img.src=url
+
+img.onload=function(){
+document.getElementById("status").innerText="Image generated"
+}
+
+}
+
+function generateVideo(){
+
+let p=document.getElementById("prompt").value
+
+document.getElementById("result").innerText=
+"Cinematic video scene of "+p+", dramatic lighting, 4k film look"
+
+}
+
+function generateText(){
+
+let p=document.getElementById("prompt").value
+
+document.getElementById("result").innerText=
+"AI Article about: "+p
 
 }
 
 </script>
 
 </body>
-
 </html>
