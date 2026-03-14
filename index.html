@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>V-STUDIO AI</title>
+<title>V-STUDIO WORKING</title>
 
 <style>
 
@@ -68,7 +68,7 @@ border-radius:8px;
 padding:10px;
 }
 
-button.generate{
+.generate{
 margin-top:10px;
 background:#6366f1;
 border:none;
@@ -78,16 +78,16 @@ border-radius:6px;
 cursor:pointer;
 }
 
-img{
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
 margin-top:20px;
-width:100%;
-max-width:600px;
-border-radius:10px;
 }
 
-.status{
-margin-top:10px;
-color:#aaa;
+img{
+width:100%;
+border-radius:10px;
 }
 
 </style>
@@ -100,7 +100,7 @@ color:#aaa;
 
 <h2>V-STUDIO</h2>
 
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button>
+<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">Image Generator</button> <button onclick="openTab('caption')">Caption AI</button>
 
 </div>
 
@@ -121,15 +121,13 @@ AI Creative Studio
 
 <script>
 
-let API_KEY="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"
-
 function openTab(tab){
 
 if(tab==="dashboard"){
 
 workspace.innerHTML=`
 <h2>Dashboard</h2>
-<p>AI Generator Ready</p>
+<p>Tools ready</p>
 `
 
 }
@@ -138,15 +136,83 @@ if(tab==="image"){
 
 workspace.innerHTML=`
 
-<h2>AI Image Generator</h2>
+<h2>Image Generator</h2>
 
 <textarea id="prompt" placeholder="describe image"></textarea>
 
-<button class="generate" onclick="generate()">Generate Image</button>
+<button class="generate" onclick="generate()">Generate</button>
 
-<div class="status" id="status"></div>
+<div class="grid" id="images"></div>
 
-<img id="image">
+`
+
+}
+
+  const models = [
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=sdxl`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=turbo`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=midjourney`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${Math.random()}`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=anime`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=photo`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=cinematic`,
+
+(prompt)=>`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?style=3d`
+]
+
+function generate(){
+
+let prompt=document.getElementById("prompt").value
+let images=document.getElementById("images")
+
+images.innerHTML="Generating..."
+
+for(let i=0;i<4;i++){
+
+let model=models[Math.floor(Math.random()*models.length)]
+
+let url=model(prompt)
+
+let img=new Image()
+
+img.onload=()=>{
+images.appendChild(img)
+}
+
+img.onerror=()=>{
+console.log("model failed, retry")
+generate()
+}
+
+img.src=url
+img.style.width="100%"
+
+}
+
+}
+
+if(tab==="caption"){
+
+workspace.innerHTML=`
+
+<h2>Caption Generator</h2>
+
+<textarea id="prompt"></textarea>
+
+<button class="generate" onclick="caption()">Generate</button>
+
+<div id="result"></div>
 
 `
 
@@ -154,38 +220,35 @@ workspace.innerHTML=`
 
 }
 
-async function generate(){
+function generate(){
 
-let API_KEY = prompt("Masukkan HuggingFace API Key")
+let prompt=document.getElementById("prompt").value
 
-let promptText=document.getElementById("prompt").value
-let status=document.getElementById("status")
-let image=document.getElementById("image")
+let images=document.getElementById("images")
 
-status.innerText="Generating image..."
+images.innerHTML=""
 
-let response=await fetch(
-"https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2",
-{
-method:"POST",
-headers:{
-"Authorization":"Bearer "+API_KEY,
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-inputs:promptText
-})
-})
+for(let i=0;i<4;i++){
 
-let blob=await response.blob()
+let url="https://picsum.photos/seed/"+encodeURIComponent(prompt+i)+"/600/600"
 
-let url=URL.createObjectURL(blob)
+let div=document.createElement("div")
 
-image.src=url
+div.innerHTML=`<img src="${url}">`
 
-status.innerText="Image ready"
+images.appendChild(div)
 
 }
+
+}
+
+function caption(){
+
+let p=document.getElementById("prompt").value
+
+result.innerText=
+"☕ "+p+" — perfect coffee moment."
+
 }
 
 </script>
