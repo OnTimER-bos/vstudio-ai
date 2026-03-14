@@ -4,7 +4,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>V-STUDIO AI</title>
 
@@ -28,12 +28,11 @@ border-right:1px solid #222;
 
 .sidebar h2{
 color:#6366f1;
-margin-bottom:20px;
 }
 
 .sidebar button{
 width:100%;
-margin-bottom:10px;
+margin-top:10px;
 background:#111;
 color:white;
 border:none;
@@ -59,7 +58,7 @@ border-bottom:1px solid #222;
 
 .workspace{
 flex:1;
-padding:25px;
+padding:30px;
 overflow:auto;
 }
 
@@ -83,17 +82,37 @@ border-radius:6px;
 cursor:pointer;
 }
 
-.result{
+.card{
 margin-top:20px;
 background:#0b0b12;
 padding:20px;
 border-radius:10px;
 }
 
+.progress{
+height:8px;
+background:#222;
+border-radius:6px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.bar{
+height:100%;
+width:0%;
+background:#6366f1;
+}
+
 img{
 margin-top:20px;
 max-width:100%;
 border-radius:10px;
+}
+
+.queue{
+margin-top:10px;
+font-size:14px;
+color:#aaa;
 }
 
 </style>
@@ -106,7 +125,7 @@ border-radius:10px;
 
 <h2>V-STUDIO</h2>
 
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button> <button onclick="openTab('video')">Video Prompt</button> <button onclick="openTab('text')">Text Generator</button>
+<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('image')">AI Image</button>
 
 </div>
 
@@ -118,7 +137,7 @@ AI Creative Studio
 
 <div class="workspace" id="workspace">
 
-<h2>Welcome to V-STUDIO</h2>
+<h2>Welcome</h2>
 <p>AI tools ready 🚀</p>
 
 </div>
@@ -127,39 +146,48 @@ AI Creative Studio
 
 <script>
 
-function openTab(tab){
+let queue=[]
+let generating=false
 
-let html=""
+function openTab(tab){
 
 if(tab==="dashboard"){
 
-html=`
+document.getElementById("workspace").innerHTML=`
+
 <h2>Dashboard</h2>
 
-<p>AI Tools Available</p>
+<p>AI Studio Ready</p>
 
 <ul>
 <li>AI Image Generator</li>
-<li>Video Prompt Generator</li>
-<li>Text Generator</li>
+<li>Queue System</li>
+<li>Progress Loading</li>
 </ul>
+
 `
 
 }
 
 if(tab==="image"){
 
-html=`
+document.getElementById("workspace").innerHTML=`
 
 <h2>AI Image Generator</h2>
 
 <textarea id="prompt" placeholder="Describe image..."></textarea>
 
-<button class="generate" onclick="generateImage()">Generate Image</button>
+<button class="generate" onclick="addQueue()">Generate Image</button>
 
-<div class="result">
+<div class="queue" id="queue"></div>
 
-<p id="status"></p>
+<div class="card">
+
+<div id="status"></div>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
 
 <img id="image">
 
@@ -169,75 +197,99 @@ html=`
 
 }
 
-if(tab==="video"){
-
-html=`
-
-<h2>Video Prompt Generator</h2>
-
-<textarea id="prompt" placeholder="Describe video scene..."></textarea>
-
-<button class="generate" onclick="generateVideo()">Generate Prompt</button>
-
-<div class="result" id="result"></div>
-
-`
-
 }
 
-if(tab==="text"){
-
-html=`
-
-<h2>Text Generator</h2>
-
-<textarea id="prompt" placeholder="Write topic..."></textarea>
-
-<button class="generate" onclick="generateText()">Generate</button>
-
-<div class="result" id="result"></div>
-
-`
-
-}
-
-document.getElementById("workspace").innerHTML=html
-
-}
-
-function generateImage(){
+function addQueue(){
 
 let prompt=document.getElementById("prompt").value
 
-let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(prompt)
+queue.push(prompt)
 
-document.getElementById("status").innerText="Generating image..."
+updateQueue()
+
+processQueue()
+
+}
+
+function updateQueue(){
+
+document.getElementById("queue").innerText=
+"Queue: "+queue.length+" image task"
+
+}
+
+function processQueue(){
+
+if(generating) return
+
+if(queue.length===0) return
+
+generating=true
+
+let prompt=queue.shift()
+
+updateQueue()
+
+generateImage(prompt)
+
+}
+
+function generateImage(prompt){
 
 let img=document.getElementById("image")
 
-img.src=url
+let status=document.getElementById("status")
+
+let bar=document.getElementById("bar")
+
+status.innerText="Generating image..."
+
+let progress=0
+
+let interval=setInterval(()=>{
+
+progress+=5
+
+bar.style.width=progress+"%"
+
+if(progress>=90){
+clearInterval(interval)
+}
+
+},200)
+
+let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(prompt)+"?seed="+Math.random()
 
 img.onload=function(){
-document.getElementById("status").innerText="Image generated"
-}
+
+clearInterval(interval)
+
+bar.style.width="100%"
+
+status.innerText="Image ready"
+
+generating=false
+
+setTimeout(()=>{
+bar.style.width="0%"
+processQueue()
+},1000)
 
 }
 
-function generateVideo(){
+img.onerror=function(){
 
-let p=document.getElementById("prompt").value
+status.innerText="Error loading image... retrying"
 
-document.getElementById("result").innerText=
-"Cinematic video scene of "+p+", dramatic lighting, 4k film look"
+setTimeout(()=>{
+
+generateImage(prompt)
+
+},2000)
 
 }
 
-function generateText(){
-
-let p=document.getElementById("prompt").value
-
-document.getElementById("result").innerText=
-"AI Article about: "+p
+img.src=url
 
 }
 
