@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<title>V-STUDIO</title>
+<title>V-STUDIO AI</title>
 
 <style>
 
@@ -12,7 +12,7 @@ background:#020205;
 color:white;
 font-family:sans-serif;
 text-align:center;
-padding-top:100px;
+padding-top:120px;
 }
 
 button{
@@ -25,6 +25,12 @@ border-radius:6px;
 cursor:pointer;
 }
 
+#output{
+margin-top:20px;
+font-size:20px;
+color:#22c55e;
+}
+
 </style>
 
 </head>
@@ -33,13 +39,11 @@ cursor:pointer;
 
 <h1>V-STUDIO AI</h1>
 
-<p>WebApps sedang berjalan</p>
+<p>Creative AI Studio</p>
 
-<button onclick="testAI()">
-Test AI
-</button>
+<button onclick="testAI()">Test AI</button>
 
-<p id="output"></p>
+<div id="output"></div>
 
 <script>
 
@@ -51,5 +55,4 @@ document.getElementById("output").innerHTML =
 </script>
 
 </body>
-
 </html>
