@@ -1,12 +1,55 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="UTF-8" />
-  <title>V-STUDIO</title>
+<meta charset="UTF-8">
+<title>V-STUDIO</title>
+
+<style>
+
+body{
+background:#020205;
+color:white;
+font-family:sans-serif;
+text-align:center;
+padding-top:100px;
+}
+
+button{
+background:#4f46e5;
+border:none;
+color:white;
+padding:12px 20px;
+font-size:16px;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
+
 </head>
 
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
+
+<h1>V-STUDIO AI</h1>
+
+<p>WebApps sedang berjalan</p>
+
+<button onclick="testAI()">
+Test AI
+</button>
+
+<p id="output"></p>
+
+<script>
+
+function testAI(){
+document.getElementById("output").innerHTML =
+"AI Engine Ready 🚀"
+}
+
+</script>
+
 </body>
+
 </html>
