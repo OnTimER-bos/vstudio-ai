@@ -38,39 +38,21 @@
 </div>
 
 <script>
-
-  // --- API KEYS (Placeholder akan diganti oleh GitHub Actions) ---
+    // --- API KEYS (Placeholder untuk GitHub Actions) ---
     const GEMINI_API_KEY = "__HF_TOKEN_1__";
     const OPENAI_API_KEY = "__HF_TOKEN_2__";
-    // --------------------------------------------------------------
 
-    const workspace = document.getElementById("workspace");
-    
-    // ... (fungsi lainnya tetap sama)
-
-    // CONTOH CARA MENGGUNAKANNYA NANTI:
-    async function callGemini(prompt) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-        
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-        
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-    }
-
-    // ... sisa kode kamu
+    // Inisialisasi elemen workspace
     const workspace = document.getElementById("workspace");
 
+    // Fungsi untuk mempercantik prompt gambar
     function enhancePrompt(p) {
         const styles = ["ultra realistic", "cinematic lighting", "8k, high detail", "sharp focus"];
         const randomStyle = styles[Math.floor(Math.random() * styles.length)];
         return `${p}, ${randomStyle}`;
     }
 
+    // Fungsi Navigasi
     function openTab(tab) {
         if(tab === "dashboard") {
             workspace.innerHTML = `<h2>Dashboard</h2><p>Sistem siap digunakan.</p>`;
@@ -88,23 +70,22 @@
         }
     }
 
+    // Fungsi Generate Gambar
     function generateImage() {
-        const prompt = document.getElementById("prompt").value;
+        const promptInput = document.getElementById("prompt");
         const imagesDiv = document.getElementById("images");
         const status = document.getElementById("status");
 
-        if(!prompt) return alert("Masukkan prompt dulu!");
+        if(!promptInput.value) return alert("Masukkan prompt dulu!");
 
         imagesDiv.innerHTML = "";
         status.innerText = "Generating images... (tunggu sebentar)";
 
-        const smartPrompt = enhancePrompt(prompt);
+        const smartPrompt = enhancePrompt(promptInput.value);
         let done = 0;
 
         for(let i = 0; i < 4; i++) {
-            // Menggunakan Pollinations API
             const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(smartPrompt)}?seed=${Math.floor(Math.random()*100000)}`;
-            
             const img = new Image();
             img.onload = () => {
                 done++;
@@ -115,9 +96,11 @@
         }
     }
 
+    // Fungsi Caption AI
     function generateCaption() {
         const p = document.getElementById("prompt").value;
-        document.getElementById("result").innerText = p ? `☕ "${p}" — the perfect moment.` : "Masukkan teks terlebih dahulu.";
+        const result = document.getElementById("result");
+        result.innerText = p ? `☕ "${p}" — the perfect moment.` : "Masukkan teks terlebih dahulu.";
     }
 </script>
 </body>
