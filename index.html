@@ -1,123 +1,42 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>V-STUDIO PRO MAX</title>
+<title>V-STUDIO AI IMAGE</title>
 
 <style>
 
 body{
-margin:0;
-font-family:Arial;
 background:#020205;
 color:white;
-display:flex;
-height:100vh;
+font-family:Arial;
+text-align:center;
+padding:40px;
 }
 
-.sidebar{
-width:220px;
-background:#05050a;
-padding:20px;
-border-right:1px solid #222;
-}
-
-.sidebar h2{
-color:#6366f1;
-margin-bottom:20px;
-}
-
-.sidebar button{
-width:100%;
-margin-bottom:10px;
-background:#111;
-color:white;
-border:none;
+input{
+width:60%;
 padding:10px;
 border-radius:6px;
-cursor:pointer;
-}
-
-.sidebar button:hover{
-background:#6366f1;
-}
-
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-}
-
-.header{
-padding:20px;
-border-bottom:1px solid #222;
-font-size:18px;
-}
-
-.workspace{
-flex:1;
-padding:25px;
-overflow:auto;
-}
-
-textarea{
-width:100%;
-height:120px;
-background:#0b0b12;
-color:white;
-border:1px solid #333;
-border-radius:8px;
-padding:10px;
-}
-
-.generate{
-margin-top:10px;
-background:#6366f1;
 border:none;
+}
+
+button{
 padding:10px 20px;
+background:#4f46e5;
+border:none;
 color:white;
 border-radius:6px;
 cursor:pointer;
+margin-left:10px;
 }
 
-.result{
-margin-top:20px;
-background:#0b0b12;
-padding:20px;
+img{
+margin-top:30px;
+max-width:500px;
 border-radius:10px;
-white-space:pre-wrap;
-}
-
-.chatbox{
-height:300px;
-overflow:auto;
-background:#0b0b12;
-padding:15px;
-border-radius:10px;
-margin-bottom:10px;
-}
-
-.msg{
-margin-bottom:10px;
-}
-
-.user{color:#22c55e}
-.ai{color:#60a5fa}
-
-.prompt-item{
-background:#0b0b12;
-padding:10px;
-border-radius:8px;
-margin-bottom:10px;
-cursor:pointer;
-}
-
-.prompt-item:hover{
-background:#1e1e2a;
 }
 
 </style>
@@ -126,191 +45,30 @@ background:#1e1e2a;
 
 <body>
 
-<div class="sidebar">
+<h1>V-STUDIO AI Image Generator</h1>
 
-<h2>V-STUDIO</h2>
+<input id="prompt" placeholder="Describe image">
 
-<button onclick="openTab('dashboard')">Dashboard</button> <button onclick="openTab('chat')">AI Chat</button> <button onclick="openTab('text')">Text Generator</button> <button onclick="openTab('image')">Image Prompt</button> <button onclick="openTab('video')">Video Prompt</button> <button onclick="openTab('library')">Prompt Library</button>
+<button onclick="generate()">Generate</button>
 
-</div>
+<br>
 
-<div class="main">
-
-<div class="header">
-AI Creative Studio
-</div>
-
-<div class="workspace" id="workspace">
-
-<h2>Welcome</h2>
-<p>V-STUDIO AI Ready 🚀</p>
-
-</div>
-
-</div>
+<img id="image">
 
 <script>
 
-function openTab(tab){
+function generate(){
 
-let html=""
+let prompt=document.getElementById("prompt").value
 
-if(tab==="dashboard"){
+let url="https://image.pollinations.ai/prompt/"+encodeURIComponent(prompt)
 
-html=`<h2>Dashboard</h2>
-<p>AI Creative Studio Ready 🚀</p>
-
-<ul>
-<li>AI Chat</li>
-<li>Prompt Generator</li>
-<li>Image Prompt Builder</li>
-<li>Video Prompt Builder</li>
-<li>Prompt Library</li>
-</ul>`
-
-}
-
-if(tab==="chat"){
-
-html=`
-<h2>AI Chat</h2>
-
-<div class="chatbox" id="chatbox"></div>
-
-<textarea id="chatInput" placeholder="Ask something..."></textarea>
-
-<button class="generate" onclick="sendChat()">Send</button>
-`
-
-}
-
-if(tab==="text"){
-
-html=`
-
-<h2>Text Generator</h2>
-
-<textarea id="prompt" placeholder="Write topic..."></textarea>
-
-<button class="generate" onclick="genText()">Generate</button>
-
-<div class="result" id="result"></div>
-`
-
-}
-
-if(tab==="image"){
-
-html=`
-
-<h2>Image Prompt Builder</h2>
-
-<textarea id="prompt" placeholder="Describe image..."></textarea>
-
-<button class="generate" onclick="genImage()">Generate</button>
-
-<div class="result" id="result"></div>
-`
-
-}
-
-if(tab==="video"){
-
-html=`
-
-<h2>Video Prompt Builder</h2>
-
-<textarea id="prompt" placeholder="Describe video..."></textarea>
-
-<button class="generate" onclick="genVideo()">Generate</button>
-
-<div class="result" id="result"></div>
-`
-
-}
-
-if(tab==="library"){
-
-html=`
-
-<h2>Prompt Library</h2>
-
-<div class="prompt-item" onclick="copyPrompt(this)">
-Write a cinematic product commercial script
-</div>
-
-<div class="prompt-item" onclick="copyPrompt(this)">
-Ultra realistic portrait photography prompt
-</div>
-
-<div class="prompt-item" onclick="copyPrompt(this)">
-Generate viral social media caption
-</div>
-
-<div class="prompt-item" onclick="copyPrompt(this)">
-Create engaging YouTube video script
-</div>
-
-<p>Tap prompt to copy.</p>
-`
-
-}
-
-document.getElementById("workspace").innerHTML=html
-
-}
-
-function genText(){
-
-let p=document.getElementById("prompt").value
-
-document.getElementById("result").innerText=
-"Write a detailed article about "+p
-
-}
-
-function genImage(){
-
-let p=document.getElementById("prompt").value
-
-document.getElementById("result").innerText=
-"Ultra realistic photo of "+p+", cinematic lighting, 8k, studio photography"
-
-}
-
-function genVideo(){
-
-let p=document.getElementById("prompt").value
-
-document.getElementById("result").innerText=
-"Cinematic video scene of "+p+", dramatic lighting, 4k film look"
-
-}
-
-function sendChat(){
-
-let input=document.getElementById("chatInput")
-let chat=document.getElementById("chatbox")
-
-chat.innerHTML+=`<div class="msg user">You: ${input.value}</div>`
-
-chat.innerHTML+=`<div class="msg ai">AI: Interesting idea about "${input.value}"</div>`
-
-input.value=""
-
-chat.scrollTop=chat.scrollHeight
-
-}
-
-function copyPrompt(el){
-
-navigator.clipboard.writeText(el.innerText)
-
-alert("Prompt copied")
+document.getElementById("image").src=url
 
 }
 
 </script>
 
 </body>
+
 </html>
